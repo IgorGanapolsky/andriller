@@ -113,7 +113,7 @@ class Config:
     def check_latest_version(self, logger=logger):
         url = f'https://pypi.org/pypi/{__package_name__}/json'
         with suppress(Exception):
-            response = requests.get(url)
+            response = requests.get(url, timeout=60)
             if response.ok and response.headers.get('Content-Type') == 'application/json':
                 latest = max(response.json()['releases'])
                 logger.debug(f'Fetched latest version from PYPI: {latest}')
