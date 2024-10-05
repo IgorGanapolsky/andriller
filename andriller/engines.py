@@ -19,7 +19,7 @@ def nl2br(eval_ctx, value):
 
 def get_engine():
     file_loader = jinja2.FileSystemLoader(os.path.join(config.CODEPATH, 'templates'))
-    engine = jinja2.Environment(loader=file_loader)
+    engine = jinja2.Environment(loader=file_loader, autoescape=True)
     engine.filters['nl2br'] = nl2br
     return engine
 
