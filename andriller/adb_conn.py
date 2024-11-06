@@ -6,6 +6,8 @@ import os.path
 import logging
 import subprocess
 from typing import List, Union
+from security import safe_command
+
 if sys.platform == 'win32':
     from .utils import placebo as timeout
 else:
@@ -93,7 +95,7 @@ class ADBConn:
             to run `adb pull /path/myfile.txt` do: self.adb('shell id')
         """
         cmd = self._get_adb_cmd(cmd, su, _for_out, **kwargs)
-        run = subprocess.run([self.adb_bin, *cmd], **self.run_opt)
+        run = safe_command.run(subprocess.run, [self.adb_bin, *cmd], **self.run_opt)
         return self._return_run_output(run, binary)
 
     def adb_out(self, cmd, binary=False, su=False, **kwargs) -> Union[str, bytes]:
@@ -133,8 +135,7 @@ class ADBConn:
         return re.sub(self.rmr, b'\n', data)
 
     def cmditer(self, cmd):
-        process = subprocess.Popen(
-            self.split_cmd(cmd),
+        process = safe_command.run(subprocess.Popen, self.split_cmd(cmd),
             shell=False,
             startupinfo=self.startupinfo,
             stdout=subprocess.PIPE)
@@ -222,7 +223,7 @@ class ADBConn:
     @timeout(30, use_signals=False)
     def cmd_shell(self, cmd: str, code: bool = False, **kwargs):
         self.logger.debug(f'Shell cmd: {cmd}')
-        run = subprocess.run(self.split_cmd(cmd), **self.run_opt)
+        run = safe_command.run(subprocess.run, self.split_cmd(cmd), **self.run_opt)
         if code:
             return run.returncode
         else:
