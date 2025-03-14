@@ -4,13 +4,13 @@ import time
 import logging
 import pathlib
 import datetime
-import requests
 import configparser
 from contextlib import suppress
 from appdirs import AppDirs
 from . import utils
 from . import statics
 from . import __version__, __package_name__
+from security import safe_requests
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +113,7 @@ class Config:
     def check_latest_version(self, logger=logger):
         url = f'https://pypi.org/pypi/{__package_name__}/json'
         with suppress(Exception):
-            response = requests.get(url)
+            response = safe_requests.get(url)
             if response.ok and response.headers.get('Content-Type') == 'application/json':
                 latest = max(response.json()['releases'])
                 logger.debug(f'Fetched latest version from PYPI: {latest}')
